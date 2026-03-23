@@ -1,126 +1,234 @@
+import { useEffect, useRef } from 'react'
+
 const B = import.meta.env.BASE_URL
 
+/* ── Reveal on scroll hook ── */
+function useReveal() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { el.classList.add('visible'); obs.unobserve(el) } },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return ref
+}
+
+function Reveal({ children, className = '', delay = 0 }) {
+  const ref = useReveal()
+  return (
+    <div ref={ref} className={`opacity-0 translate-y-10 transition-all duration-700 ease-out ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  )
+}
+
+/* ── Navigation ── */
 function Nav() {
   const links = [
-    ['Marca', '#marca'],
-    ['Logotipo', '#logotipo'],
-    ['Cores', '#cores'],
-    ['Tipografia', '#tipografia'],
-    ['Uso', '#uso'],
-    ['Proibido', '#proibido'],
+    ['Sobre', '#sobre'], ['Conceito', '#conceito'], ['Logotipo', '#logotipo'],
+    ['Paleta', '#paleta'], ['Tipografia', '#tipografia'],
+    ['Aplicações', '#aplicacoes'], ['Restrições', '#proibidos'],
   ]
+  useEffect(() => {
+    const nav = document.getElementById('main-nav')
+    const handler = () => nav?.classList.toggle('scrolled', window.scrollY > 80)
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0f1a]/90 backdrop-blur-md border-b border-white/10">
-      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
-        <a href="#" className="flex items-center gap-3">
-          <img src={`${B}logos/row1c-simbolo-azul-sereno.png`} alt="FDV" className="h-8" />
-          <span className="font-[family-name:var(--font-display)] text-lg text-white font-semibold hidden sm:block">Fruto Da Vide</span>
-        </a>
-        <div className="hidden md:flex items-center gap-6">
-          {links.map(([label, href]) => (
-            <a key={href} href={href} className="text-sm text-slate-400 hover:text-[#D4A434] transition-colors">
-              {label}
-            </a>
-          ))}
-        </div>
+    <nav id="main-nav" className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-12 h-[72px] bg-[#F8F5F0]/92 backdrop-blur-xl border-b border-azul/8 transition-all duration-500">
+      <a href="#" className="font-[family-name:var(--font-display)] text-[1.1rem] font-semibold text-azul tracking-[0.15em] uppercase">
+        Fruto Da Vide
+      </a>
+      <div className="hidden md:flex items-center gap-8">
+        {links.map(([label, href]) => (
+          <a key={href} href={href}
+            className="text-[0.7rem] font-medium tracking-[0.12em] uppercase text-azul relative hover:text-dourado transition-colors
+              after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-px after:bg-dourado after:transition-all after:duration-500 hover:after:w-full">
+            {label}
+          </a>
+        ))}
       </div>
     </nav>
   )
 }
 
+/* ── Hero ── */
 function Hero() {
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-16">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#314F73]/20 via-transparent to-transparent" />
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#314F73]/10 blur-[120px]" />
-
-      <div className="relative z-10 text-center px-6">
-        <img src={`${B}logos/row1-azul-sereno.png`} alt="Fruto Da Vide" className="mx-auto mb-10 max-w-lg w-full" />
-
-        <div className="inline-block px-4 py-1.5 rounded-full border border-[#D4A434]/30 bg-[#D4A434]/10 mb-6">
-          <span className="text-[#D4A434] text-sm font-medium tracking-wider uppercase">Manual de Identidade Visual</span>
+    <section className="relative h-screen min-h-[700px] flex items-center justify-center bg-azul overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(212,164,52,0.08)_0%,transparent_60%),radial-gradient(ellipse_at_70%_80%,rgba(255,255,255,0.03)_0%,transparent_50%)]" />
+      <div className="relative z-10 text-center text-white">
+        <div className="overflow-hidden">
+          <p className="text-[0.7rem] font-medium tracking-[0.35em] uppercase text-dourado mb-8 animate-[heroLine_1.2s_ease-out_forwards]"
+            style={{ transform: 'translateY(110%)' }}>
+            Manual de Identidade Visual
+          </p>
         </div>
-
-        <h1 className="font-[family-name:var(--font-display)] text-5xl md:text-7xl text-white font-bold mb-6 leading-tight">
-          Fruto Da Vide
+        <h1 className="font-[family-name:var(--font-display)] text-[clamp(3rem,8vw,7rem)] font-normal leading-[1.05] tracking-tight mb-8">
+          <span className="block overflow-hidden">
+            <span className="block animate-[heroLine_1.2s_ease-out_0.15s_forwards]" style={{ transform: 'translateY(110%)' }}>Fruto</span>
+          </span>
+          <span className="block overflow-hidden">
+            <span className="block animate-[heroLine_1.2s_ease-out_0.3s_forwards] italic text-dourado" style={{ transform: 'translateY(110%)' }}>Da Vide</span>
+          </span>
         </h1>
-        <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-          44 anos de tradi&ccedil;&atilde;o em solu&ccedil;&otilde;es t&ecirc;xteis premium para hotelaria e sa&uacute;de.
-          Este manual define as diretrizes visuais que protegem e fortalecem a marca.
-        </p>
-
-        <a href="#marca" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#D4A434] text-white font-semibold hover:bg-[#E8C060] transition-colors">
-          Explorar Manual
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-        </a>
+        <div className="overflow-hidden">
+          <p className="text-[0.85rem] font-light tracking-[0.2em] uppercase opacity-70 animate-[heroLine_1.2s_ease-out_0.5s_forwards]"
+            style={{ transform: 'translateY(110%)' }}>
+            Soluções Têxteis Premium
+          </p>
+        </div>
+        <div className="overflow-hidden mt-4">
+          <p className="text-[0.7rem] font-normal tracking-[0.15em] opacity-40 animate-[heroLine_1.2s_ease-out_0.7s_forwards]"
+            style={{ transform: 'translateY(110%)' }}>
+            Versão 3.0 — Março 2026
+          </p>
+        </div>
       </div>
+      <a href="#sobre" className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-[float_3s_ease-in-out_infinite]">
+        <span className="text-[0.6rem] tracking-[0.2em] uppercase text-white/40">Explorar</span>
+        <div className="w-px h-10 bg-gradient-to-b from-dourado to-transparent" />
+      </a>
     </section>
   )
 }
 
-function SectionTitle({ tag, title, desc, id }) {
+/* ── Section label ── */
+function SectionLabel({ children }) {
   return (
-    <div id={id} className="text-center mb-16 scroll-mt-20">
-      <div className="inline-block px-3 py-1 rounded-full border border-[#D4A434]/30 bg-[#D4A434]/10 mb-4">
-        <span className="text-[#D4A434] text-xs font-semibold tracking-widest uppercase">{tag}</span>
-      </div>
-      <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-5xl text-white font-bold mb-4">{title}</h2>
-      {desc && <p className="text-slate-400 text-lg max-w-2xl mx-auto">{desc}</p>}
+    <div className="flex items-center gap-4 mb-6">
+      <div className="w-10 h-px bg-dourado" />
+      <span className="text-[0.65rem] font-semibold tracking-[0.3em] uppercase text-dourado">{children}</span>
     </div>
   )
 }
 
-function Marca() {
-  const attrs = [
-    { icon: '44+', label: 'Tradi\u00e7\u00e3o', desc: 'Mais de quatro d\u00e9cadas de excel\u00eancia em t\u00eaxteis.' },
-    { icon: '\u2605', label: 'Qualidade Premium', desc: 'Materiais e acabamentos de alto padr\u00e3o.' },
-    { icon: '\u2764', label: 'Confian\u00e7a', desc: 'Parceira de grandes redes hoteleiras e institui\u00e7\u00f5es.' },
-    { icon: '\u2728', label: 'Sofistica\u00e7\u00e3o', desc: 'Design alinhado \u00e0s tend\u00eancias contempor\u00e2neas.' },
+/* ── Divider ── */
+function Divider() {
+  return (
+    <div className="flex items-center justify-center py-12 gap-6">
+      <div className="flex-1 max-w-30 h-px bg-azul/12" />
+      <div className="w-1.5 h-1.5 border border-dourado rotate-45" />
+      <div className="flex-1 max-w-30 h-px bg-azul/12" />
+    </div>
+  )
+}
+
+/* ── Sobre ── */
+function Sobre() {
+  const values = [
+    { title: 'Excelência', desc: 'Cada fio, cada trama, cada acabamento reflete nosso compromisso inabalável com a qualidade superior.' },
+    { title: 'Confiança', desc: 'Relações duradouras com hotéis e instituições de saúde construídas sobre décadas de entregas consistentes.' },
+    { title: 'Inovação', desc: 'Tecnologia têxtil de ponta aliada à sustentabilidade e ao respeito pelo meio ambiente.' },
+    { title: 'Tradição', desc: 'Quatro décadas de conhecimento acumulado que garantem processos refinados e resultados impecáveis.' },
   ]
   return (
-    <section className="py-24 px-6">
-      <SectionTitle id="marca" tag="01" title="A Marca" desc="Ess\u00eancia, atributos e posicionamento que definem a Fruto Da Vide." />
-      <div className="max-w-5xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-            <h3 className="font-[family-name:var(--font-display)] text-xl text-white font-semibold mb-4">Ess\u00eancia</h3>
-            <p className="text-slate-400 leading-relaxed">
-              A Fruto Da Vide \u00e9 uma empresa brasileira com mais de 44 anos de tradi\u00e7\u00e3o
-              na fabrica\u00e7\u00e3o de solu\u00e7\u00f5es t\u00eaxteis premium para os segmentos de hotelaria e sa\u00fade.
-              A marca carrega valores de confian\u00e7a, durabilidade e sofistica\u00e7\u00e3o.
-            </p>
+    <section id="sobre" className="py-32 px-8 max-w-[1200px] mx-auto scroll-mt-20">
+      <Reveal>
+        <SectionLabel>01 — Sobre a Marca</SectionLabel>
+        <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-8 max-w-[700px]">
+          Mais de 44 anos tecendo excelência e confiança
+        </h2>
+      </Reveal>
+      <div className="grid md:grid-cols-2 gap-24 items-center mt-16">
+        <Reveal delay={100}>
+          <div className="font-[family-name:var(--font-display)] text-[clamp(5rem,10vw,9rem)] font-normal text-azul leading-none mb-2">
+            44<span className="text-[0.4em] align-super text-dourado">+</span>
           </div>
-          <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-            <h3 className="font-[family-name:var(--font-display)] text-xl text-white font-semibold mb-4">Tom de Voz</h3>
-            <p className="text-slate-400 leading-relaxed">
-              Elegante e acolhedor. A comunica\u00e7\u00e3o transmite profissionalismo sem ser fria,
-              e proximidade sem ser informal. Vocabul\u00e1rio que evoca conforto, qualidade e cuidado.
-            </p>
+          <div className="text-[0.75rem] font-medium tracking-[0.2em] uppercase text-dourado mb-8">Anos de história</div>
+          <p className="text-[1.05rem] font-light leading-[1.9] text-cinza max-w-[620px]">
+            A Fruto Da Vide nasceu da convicção de que o conforto e a qualidade dos têxteis
+            transformam ambientes e experiências. Há mais de quatro décadas, fornecemos
+            soluções têxteis premium para os setores de hotelaria e saúde, unindo tradição
+            artesanal à inovação industrial.
+          </p>
+        </Reveal>
+        <Reveal delay={200}>
+          <div className="flex flex-col gap-6">
+            {values.map(({ title, desc }) => (
+              <div key={title} className="flex items-start gap-4">
+                <div className="w-8 h-8 shrink-0 border border-dourado rounded-full flex items-center justify-center text-[0.7rem] text-dourado mt-0.5">&#9670;</div>
+                <div>
+                  <h4 className="text-[0.85rem] font-semibold tracking-[0.05em] mb-1">{title}</h4>
+                  <p className="text-[0.9rem] font-light leading-[1.7] text-cinza">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {attrs.map(({ icon, label, desc }) => (
-            <div key={label} className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[#D4A434]/40 transition-colors">
-              <div className="text-3xl mb-3">{icon}</div>
-              <h4 className="text-white font-semibold mb-2">{label}</h4>
-              <p className="text-slate-500 text-sm">{desc}</p>
-            </div>
-          ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   )
 }
 
-function LogoCard({ src, title, desc, bg }) {
+/* ── Conceito ── */
+function Conceito() {
   return (
-    <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-[#D4A434]/30 transition-colors">
-      <div className={`p-8 flex items-center justify-center min-h-[200px] ${bg || 'bg-white'}`}>
-        <img src={`${B}logos/${src}`} alt={title} className="max-h-40 max-w-full object-contain" />
+    <section id="conceito" className="bg-azul text-white py-32 px-8 scroll-mt-20">
+      <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-24 items-center">
+        <Reveal>
+          <div className="flex items-center justify-center aspect-square rounded-full border border-dourado/20 relative">
+            <div className="absolute inset-5 rounded-full border border-dourado/10" />
+            <svg viewBox="0 0 100 100" fill="none" className="w-2/5 h-2/5 opacity-90">
+              <circle cx="50" cy="50" r="45" stroke="#D4A434" strokeWidth="0.5" opacity="0.6"/>
+              <path d="M50 20 C50 20 35 35 35 55 C35 65 42 75 50 80 C58 75 65 65 65 55 C65 35 50 20 50 20Z" stroke="#D4A434" strokeWidth="1" fill="none"/>
+              <path d="M50 35 C45 45 43 52 43 58 C43 64 46 70 50 73 C54 70 57 64 57 58 C57 52 55 45 50 35Z" fill="#D4A434" opacity="0.15"/>
+              <line x1="50" y1="45" x2="50" y2="75" stroke="#D4A434" strokeWidth="0.5" opacity="0.5"/>
+              <path d="M50 52 C46 48 42 50 40 52" stroke="#D4A434" strokeWidth="0.5" fill="none" opacity="0.5"/>
+              <path d="M50 58 C54 54 58 56 60 58" stroke="#D4A434" strokeWidth="0.5" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+        </Reveal>
+        <Reveal delay={100}>
+          <SectionLabel>02 — Conceito</SectionLabel>
+          <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-8 max-w-[700px]">
+            A vide como símbolo de crescimento perene
+          </h2>
+          <p className="text-[1.05rem] font-light leading-[1.9] text-white/60 max-w-[620px]">
+            O nome "Fruto Da Vide" evoca a videira — planta que, com raízes profundas e
+            ramos persistentes, produz frutos de excelência geração após geração. O símbolo
+            da folha e da vide dentro de um círculo representa a continuidade, a proteção
+            e o ciclo virtuoso da qualidade.
+          </p>
+          <p className="text-[1.05rem] font-light leading-[1.9] text-white/60 max-w-[620px] mt-6">
+            O círculo traduz totalidade e cuidado envolvente — os mesmos valores que
+            aplicamos em cada peça têxtil entregue aos nossos parceiros.
+          </p>
+          <blockquote className="font-[family-name:var(--font-display)] text-[1.4rem] italic leading-[1.7] text-white/85 mt-12 pl-6 border-l-2 border-dourado">
+            "Da raiz ao fruto, cada detalhe importa."
+          </blockquote>
+        </Reveal>
       </div>
-      <div className="p-5">
-        <h4 className="text-white font-semibold text-sm mb-1">{title}</h4>
-        <p className="text-slate-500 text-xs">{desc}</p>
+    </section>
+  )
+}
+
+/* ── Logotipo ── */
+function LogoCard({ src, label, variant = 'light' }) {
+  const bgClass = variant === 'light' ? 'bg-cream border border-azul/8' : variant === 'dark' ? 'bg-preto' : 'bg-azul'
+  const labelClass = variant === 'light' ? 'text-cinza' : 'text-white/40'
+  return (
+    <div className={`aspect-[4/3] rounded-xl overflow-hidden flex flex-col items-center justify-center relative p-8
+      transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(49,79,115,0.12)] ${bgClass}`}>
+      <img src={`${B}logos/${src}`} alt={label} className="max-w-[65%] max-h-[55%] object-contain" />
+      <span className={`absolute bottom-5 text-[0.65rem] font-medium tracking-[0.15em] uppercase ${labelClass}`}>{label}</span>
+    </div>
+  )
+}
+
+function LogoSection({ title, children }) {
+  return (
+    <div className="mb-16">
+      <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-azul mb-6">{title}</h3>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {children}
       </div>
     </div>
   )
@@ -128,300 +236,388 @@ function LogoCard({ src, title, desc, bg }) {
 
 function Logotipo() {
   return (
-    <section className="py-24 px-6 bg-[#0d1220]">
-      <SectionTitle id="logotipo" tag="02" title="Logotipo" desc="Varia\u00e7\u00f5es do logotipo e suas aplica\u00e7\u00f5es corretas." />
-      <div className="max-w-6xl mx-auto">
+    <section id="logotipo" className="py-32 px-8 max-w-[1200px] mx-auto scroll-mt-20">
+      <Reveal>
+        <SectionLabel>03 — Logotipo</SectionLabel>
+        <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-4 max-w-[700px]">
+          Variações do logotipo
+        </h2>
+        <p className="text-[1.05rem] font-light leading-[1.9] text-cinza max-w-[620px] mb-16">
+          Todos os logotipos possuem fundo transparente (PNG) para aplicação versátil sobre qualquer superfície ou cor de fundo.
+        </p>
+      </Reveal>
 
-        <h3 className="font-[family-name:var(--font-display)] text-xl text-white font-semibold mb-6 text-center">Vers\u00e3o Principal</h3>
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <LogoCard src="row1-azul-sereno.png" title="Azul Sereno \u2014 Cor Principal" desc="Vers\u00e3o preferencial para todos os materiais da marca." />
-          <LogoCard src="row1-dourado.png" title="Dourado Quente" desc="Para materiais premium, convites e papelaria especial." />
-        </div>
+      <Reveal delay={100}>
+        <LogoSection title="Versão Principal — Azul Sereno + Dourado">
+          <LogoCard src="f1-full-azul-sereno.png" label="Azul Sereno" />
+          <LogoCard src="f1-full-dourado.png" label="Dourado Quente" />
+          <LogoCard src="f1-full-azul-dourado.png" label="Azul + Dourado" />
+        </LogoSection>
+      </Reveal>
 
-        <h3 className="font-[family-name:var(--font-display)] text-xl text-white font-semibold mb-6 text-center">Varia\u00e7\u00f5es de Cor</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <LogoCard src="row1-pb.png" title="Monocrom\u00e1tico (P&B)" desc="Impress\u00f5es em uma cor, fax, carimbos." />
-          <LogoCard src="row1-negativa.png" title="Vers\u00e3o Negativa" desc="Sobre fundos escuros ou fotogr\u00e1ficos." bg="bg-[#314F73]" />
-          <LogoCard src="row2-azul-sereno.png" title="Composi\u00e7\u00e3o Alternativa" desc="Layout alternativo com gradiente." />
-        </div>
+      <Reveal delay={100}>
+        <LogoSection title="Variações Monocromáticas e Negativa">
+          <LogoCard src="f1-full-pb.png" label="Preto e Branco" />
+          <LogoCard src="f1-full-branco.png" label="Branco (Negativa)" variant="blue" />
+          <LogoCard src="f1-full-negativa.png" label="Negativa sobre Azul" variant="dark" />
+        </LogoSection>
+      </Reveal>
 
-        <h3 className="font-[family-name:var(--font-display)] text-xl text-white font-semibold mb-6 text-center">Layouts e Elementos</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <LogoCard src="row1a-preto-azul-sereno.png" title="Texto + S\u00edmbolo" desc="Nome completo com elemento da videira." />
-          <LogoCard src="row1c-simbolo-azul-sereno.png" title="S\u00edmbolo Isolado" desc="\u00cdcone para redes sociais e favicon." />
-          <LogoCard src="row3-azul-sereno.png" title="Layout Compacto" desc="Para espa\u00e7os reduzidos e etiquetas." />
-          <LogoCard src="row4-azul-sereno.png" title="Vers\u00e3o Horizontal" desc="Assinaturas de e-mail e rodap\u00e9s." />
-        </div>
+      <Reveal delay={100}>
+        <LogoSection title="Nome + Símbolo (Seção Superior)">
+          <LogoCard src="f1-row1-azul-sereno.png" label="Azul Sereno" />
+          <LogoCard src="f1-row1-dourado.png" label="Dourado" />
+          <LogoCard src="f1-row1-azul-dourado.png" label="Azul + Dourado" />
+          <LogoCard src="f1-row1-pb.png" label="P&B" />
+          <LogoCard src="f1-row1-branco.png" label="Branco" variant="blue" />
+          <LogoCard src="f1-row1-negativa.png" label="Negativa" variant="dark" />
+        </LogoSection>
+      </Reveal>
 
-        <div className="max-w-3xl mx-auto bg-white/5 rounded-2xl p-8 border border-white/10">
-          <h3 className="font-[family-name:var(--font-display)] text-xl text-white font-semibold mb-4">Regras de Prote\u00e7\u00e3o</h3>
-          <div className="grid md:grid-cols-2 gap-6 text-sm text-slate-400">
-            <div>
-              <h4 className="text-white font-semibold mb-2">\u00c1rea de Prote\u00e7\u00e3o</h4>
-              <p>Manter margem m\u00ednima equivalente \u00e0 altura da letra &ldquo;F&rdquo; ao redor do logotipo em todas as aplica\u00e7\u00f5es.</p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-2">Tamanho M\u00ednimo</h4>
-              <p>Impresso: 30mm de largura (horizontal), 20mm (s\u00edmbolo). Tela: 120px de largura m\u00ednima.</p>
+      <Reveal delay={100}>
+        <LogoSection title="Símbolo Isolado (Videira)">
+          <LogoCard src="row1-simbolo-azul-sereno.png" label="Azul Sereno" />
+          <LogoCard src="row1-simbolo-dourado.png" label="Dourado" />
+          <LogoCard src="row1-simbolo-azul-dourado.png" label="Azul + Dourado" />
+          <LogoCard src="row1-simbolo-pb.png" label="P&B" />
+          <LogoCard src="row1-simbolo-branco.png" label="Branco" variant="blue" />
+          <LogoCard src="row1-simbolo-negativa.png" label="Negativa" variant="dark" />
+        </LogoSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <LogoSection title="Texto Isolado">
+          <LogoCard src="row1-texto-azul-sereno.png" label="Azul Sereno" />
+          <LogoCard src="row1-texto-dourado.png" label="Dourado" />
+          <LogoCard src="row1-texto-branco.png" label="Branco" variant="blue" />
+        </LogoSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <LogoSection title="Layouts Alternativos">
+          <LogoCard src="f1-row2-azul-sereno.png" label="Layout 2 — Azul" />
+          <LogoCard src="f1-row3-azul-sereno.png" label="Compacto — Azul" />
+          <LogoCard src="f1-row4-azul-sereno.png" label="Horizontal — Azul" />
+          <LogoCard src="f1-row2-dourado.png" label="Layout 2 — Dourado" />
+          <LogoCard src="f1-row3-dourado.png" label="Compacto — Dourado" />
+          <LogoCard src="f1-row4-dourado.png" label="Horizontal — Dourado" />
+        </LogoSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <LogoSection title="Frame 2 — Variações">
+          <LogoCard src="f2-full-azul-sereno.png" label="Azul Sereno" />
+          <LogoCard src="f2-full-dourado.png" label="Dourado" />
+          <LogoCard src="f2-full-branco.png" label="Branco" variant="blue" />
+        </LogoSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <div className="bg-cream border border-azul/8 rounded-2xl p-10 mt-8">
+          <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-azul mb-4">Área de Proteção</h3>
+          <div className="flex items-center justify-center py-10">
+            <div className="relative w-80 h-60 border border-dashed border-dourado flex items-center justify-center">
+              <div className="w-3/5 h-3/5 border border-azul/15 flex items-center justify-center font-[family-name:var(--font-display)] text-[1.4rem] text-azul tracking-[0.05em]">
+                FdV
+              </div>
+              <span className="absolute top-1/2 -right-7 -translate-y-1/2 font-[family-name:var(--font-display)] text-[1.2rem] text-dourado">F</span>
+              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 font-[family-name:var(--font-display)] text-[1.2rem] text-dourado">F</span>
             </div>
           </div>
+          <p className="text-center text-[0.95rem] leading-[1.8] text-cinza max-w-[500px] mx-auto mt-4">
+            A margem de segurança equivalente à altura da letra <strong className="font-[family-name:var(--font-display)] text-azul">F</strong> deve ser aplicada ao redor de todo o logotipo. Nenhum elemento deve invadir essa área.
+          </p>
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }
 
-function ColorSwatch({ hex, name, rgb, cmyk, usage }) {
+/* ── Paleta de Cores ── */
+function Swatch({ hex, name, rgb, cmyk, usage }) {
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(hex)
+    } catch {
+      /* fallback */
+    }
+  }
   return (
-    <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
-      <div className="h-28 md:h-36" style={{ backgroundColor: hex }} />
-      <div className="p-4">
-        <h4 className="text-white font-semibold text-sm">{name}</h4>
-        <div className="mt-2 space-y-1 text-xs text-slate-500 font-mono">
-          <div>HEX: {hex}</div>
-          <div>RGB: {rgb}</div>
-          <div>CMYK: {cmyk}</div>
-        </div>
-        <p className="mt-2 text-xs text-slate-400">{usage}</p>
+    <div className="rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)]"
+      onClick={handleCopy}>
+      <div className="h-44 flex items-end p-5" style={{ backgroundColor: hex }} />
+      <div className="p-5 bg-white">
+        <h4 className="font-[family-name:var(--font-display)] text-[1.05rem] font-medium text-preto mb-2">{name}</h4>
+        <p className="text-[0.75rem] font-medium tracking-[0.1em] text-cinza mb-0.5">HEX {hex}</p>
+        <p className="text-[0.7rem] text-cinza/70">RGB {rgb}</p>
+        {cmyk && <p className="text-[0.7rem] text-cinza/70">CMYK {cmyk}</p>}
+        {usage && <p className="text-[0.8rem] text-cinza mt-2">{usage}</p>}
       </div>
     </div>
   )
 }
 
-function Cores() {
+function Paleta() {
   return (
-    <section className="py-24 px-6">
-      <SectionTitle id="cores" tag="03" title="Paleta de Cores" desc="As cores que comunicam a ess\u00eancia da marca \u2014 serenidade, sofistica\u00e7\u00e3o e acolhimento." />
-      <div className="max-w-5xl mx-auto">
+    <section id="paleta" className="py-32 px-8 max-w-[1200px] mx-auto scroll-mt-20">
+      <Reveal>
+        <SectionLabel>04 — Paleta de Cores</SectionLabel>
+        <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-4 max-w-[700px]">
+          Cores que traduzem sofisticação e acolhimento
+        </h2>
+        <p className="text-[1.05rem] font-light leading-[1.9] text-cinza max-w-[620px]">
+          A paleta combina a serenidade do azul institucional com o calor do dourado, criando uma identidade que transmite confiança, elegância e proximidade.
+        </p>
+      </Reveal>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+        <Reveal delay={100}><Swatch hex="#314F73" name="Azul Sereno" rgb="49, 79, 115" cmyk="57, 31, 0, 55" usage="Cor principal. Títulos, fundos, logotipo." /></Reveal>
+        <Reveal delay={200}><Swatch hex="#D4A434" name="Dourado Quente" rgb="212, 164, 52" cmyk="0, 23, 75, 17" usage="Destaques, CTAs, acentos premium." /></Reveal>
+        <Reveal delay={300}><Swatch hex="#F8F5F0" name="Branco Quente" rgb="248, 245, 240" cmyk="0, 1, 4, 3" usage="Fundos principais e espaços de respiro." /></Reveal>
+        <Reveal delay={100}><Swatch hex="#1A1A1A" name="Preto Suave" rgb="26, 26, 26" cmyk="0, 0, 0, 90" usage="Texto principal e elementos âncora." /></Reveal>
+        <Reveal delay={200}><Swatch hex="#F5E6B8" name="Dourado Claro" rgb="245, 230, 184" cmyk="0, 6, 25, 4" usage="Fundos premium e materiais especiais." /></Reveal>
+        <Reveal delay={300}><Swatch hex="#94A3B8" name="Cinza Nobre" rgb="148, 163, 184" cmyk="20, 12, 0, 28" usage="Texto secundário e legendas." /></Reveal>
+      </div>
 
-        <h3 className="font-[family-name:var(--font-display)] text-lg text-white font-semibold mb-6">Cores Prim\u00e1rias</h3>
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <ColorSwatch hex="#314F73" name="Azul Sereno" rgb="49, 79, 115" cmyk="57, 31, 0, 55" usage="Cor principal. T\u00edtulos, fundos, logotipo, elementos estruturais." />
-          <ColorSwatch hex="#D4A434" name="Dourado Quente" rgb="212, 164, 52" cmyk="0, 23, 75, 17" usage="Destaques, CTAs, \u00edcones, acentos visuais, detalhes premium." />
-        </div>
-
-        <h3 className="font-[family-name:var(--font-display)] text-lg text-white font-semibold mb-6">Cores de Suporte</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <ColorSwatch hex="#F5F7FA" name="Cloud White" rgb="245, 247, 250" cmyk="2, 1, 0, 2" usage="Fundos principais" />
-          <ColorSwatch hex="#FAF5E8" name="Warm Cream" rgb="250, 245, 232" cmyk="0, 2, 7, 2" usage="Fundos premium" />
-          <ColorSwatch hex="#64748B" name="Slate" rgb="100, 116, 139" cmyk="28, 17, 0, 45" usage="Texto secund\u00e1rio" />
-          <ColorSwatch hex="#333333" name="Dark Charcoal" rgb="51, 51, 51" cmyk="0, 0, 0, 80" usage="Texto corpo" />
-        </div>
-
-        <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-          <h3 className="font-[family-name:var(--font-display)] text-lg text-white font-semibold mb-6">Propor\u00e7\u00e3o de Uso</h3>
+      <Reveal delay={200}>
+        <div className="bg-cream border border-azul/8 rounded-2xl p-10 mt-12">
+          <h3 className="font-[family-name:var(--font-display)] text-lg font-medium text-azul mb-6">Proporção de Uso</h3>
           <div className="flex flex-col gap-4">
             {[
-              { pct: 60, color: '#314F73', label: 'Azul Sereno', desc: 'Elemento dominante', text: 'text-white' },
-              { pct: 20, color: '#F5F7FA', label: 'Cloud White', desc: 'Respiro visual', text: 'text-[#314F73]' },
-              { pct: 15, color: '#D4A434', label: 'Dourado Quente', desc: 'Destaques e CTAs', text: 'text-white' },
-              { pct: 5, color: '#64748B', label: 'Slate', desc: 'Detalhes', text: 'text-white' },
-            ].map(({ pct, color, label, desc, text }) => (
+              { pct: 60, color: '#314F73', label: 'Azul Sereno', desc: 'Elemento dominante', light: false },
+              { pct: 20, color: '#F8F5F0', label: 'Branco Quente', desc: 'Respiro visual', light: true },
+              { pct: 15, color: '#D4A434', label: 'Dourado Quente', desc: 'Destaques e CTAs', light: false },
+              { pct: 5, color: '#94A3B8', label: 'Cinza Nobre', desc: 'Detalhes', light: false },
+            ].map(({ pct, color, label, desc, light }) => (
               <div key={label} className="flex items-center gap-4">
-                <div className="w-16 text-right text-sm font-mono text-slate-400">{pct}%</div>
-                <div className="flex-1 rounded-lg h-10 flex items-center px-4" style={{ backgroundColor: color, width: `${pct}%`, minWidth: '120px' }}>
-                  <span className={`text-xs font-semibold ${text}`}>{label}</span>
+                <div className="w-14 text-right text-sm font-mono text-cinza">{pct}%</div>
+                <div className="rounded-lg h-10 flex items-center px-4" style={{ backgroundColor: color, width: `${pct}%`, minWidth: '120px', border: light ? '1px solid rgba(49,79,115,0.08)' : 'none' }}>
+                  <span className={`text-xs font-semibold ${light ? 'text-azul' : 'text-white'}`}>{label}</span>
                 </div>
-                <span className="text-xs text-slate-500 hidden sm:block">{desc}</span>
+                <span className="text-xs text-cinza hidden sm:block">{desc}</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }
 
+/* ── Tipografia ── */
 function Tipografia() {
   return (
-    <section className="py-24 px-6 bg-[#0d1220]">
-      <SectionTitle id="tipografia" tag="04" title="Tipografia" desc="As fam\u00edlias tipogr\u00e1ficas que d\u00e3o voz \u00e0 marca." />
-      <div className="max-w-5xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-            <div className="text-xs text-[#D4A434] font-semibold uppercase tracking-widest mb-4">T\u00edtulos</div>
-            <h3 className="font-[family-name:var(--font-display)] text-4xl text-white font-bold mb-4">Playfair Display</h3>
-            <p className="font-[family-name:var(--font-display)] text-2xl text-slate-300 mb-6 italic">Aa Bb Cc Dd Ee Ff</p>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Fonte serifada elegante para t\u00edtulos e elementos de destaque.
-              Personalidade cl\u00e1ssica que refor\u00e7a tradi\u00e7\u00e3o e sofistica\u00e7\u00e3o.
-              Dispon\u00edvel no Google Fonts.
-            </p>
-          </div>
-          <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-            <div className="text-xs text-[#D4A434] font-semibold uppercase tracking-widest mb-4">Corpo</div>
-            <h3 className="font-[family-name:var(--font-body)] text-4xl text-white font-bold mb-4">Montserrat</h3>
-            <p className="font-[family-name:var(--font-body)] text-2xl text-slate-300 mb-6 font-light">Aa Bb Cc Dd Ee Ff</p>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Fonte sans-serif moderna e vers\u00e1til para corpo de texto,
-              legendas, bot\u00f5es e interfaces. Legibilidade e neutralidade
-              como complemento perfeito.
-            </p>
-          </div>
-        </div>
+    <section id="tipografia" className="py-32 px-8 max-w-[1200px] mx-auto scroll-mt-20">
+      <Reveal>
+        <SectionLabel>05 — Tipografia</SectionLabel>
+        <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-16 max-w-[700px]">
+          Tipografia que equilibra tradição e modernidade
+        </h2>
+      </Reveal>
 
-        <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-          <h3 className="text-white font-semibold mb-6">Hierarquia Tipogr\u00e1fica</h3>
-          <div className="space-y-6">
-            {[
-              { el: 'H1', font: 'Playfair Display Bold', size: '32\u201340pt', sample: 'T\u00edtulo Principal', fontClass: 'font-[family-name:var(--font-display)] text-4xl font-bold' },
-              { el: 'H2', font: 'Playfair Display SemiBold', size: '24\u201328pt', sample: 'Subt\u00edtulo da Se\u00e7\u00e3o', fontClass: 'font-[family-name:var(--font-display)] text-2xl font-semibold' },
-              { el: 'H3', font: 'Montserrat SemiBold', size: '18\u201320pt', sample: 'T\u00edtulo de Bloco', fontClass: 'text-xl font-semibold' },
-              { el: 'Corpo', font: 'Montserrat Regular', size: '14\u201316pt', sample: 'Texto corrido de leitura', fontClass: 'text-base font-normal' },
-              { el: 'Caption', font: 'Montserrat Light', size: '11\u201312pt', sample: 'Legenda e notas de rodap\u00e9', fontClass: 'text-sm font-light text-slate-400' },
-            ].map(({ el, font, size, sample, fontClass }) => (
-              <div key={el} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 pb-4 border-b border-white/5">
-                <div className="w-20 text-xs text-[#D4A434] font-mono font-semibold">{el}</div>
-                <div className={`flex-1 text-white ${fontClass}`}>{sample}</div>
-                <div className="text-xs text-slate-500 font-mono whitespace-nowrap">{font} / {size}</div>
+      <Reveal delay={100}>
+        <div className="mb-16 pb-16 border-b border-azul/8">
+          <div className="text-[0.65rem] font-semibold tracking-[0.25em] uppercase text-dourado mb-6">Fonte Primária — Títulos</div>
+          <div className="font-[family-name:var(--font-display)] text-[clamp(2.5rem,5vw,4.5rem)] font-normal leading-[1.2] text-azul mb-6">
+            Playfair Display
+          </div>
+          <div className="font-[family-name:var(--font-display)] text-[1.1rem] leading-8 text-cinza tracking-[0.05em]">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ<br/>
+            abcdefghijklmnopqrstuvwxyz<br/>
+            0123456789 &amp; ? ! @ #
+          </div>
+          <div className="flex flex-wrap gap-8 mt-8">
+            {[['Regular 400', '400'], ['Medium 500', '500'], ['Bold 700', '700']].map(([name, w]) => (
+              <div key={name} className="flex flex-col gap-1">
+                <span className="text-[0.65rem] font-medium tracking-[0.15em] uppercase text-cinza">{name}</span>
+                <span className="font-[family-name:var(--font-display)] text-[1.8rem] text-azul" style={{ fontWeight: w }}>Fruto Da Vide</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
-    </section>
-  )
-}
+      </Reveal>
 
-function Uso() {
-  return (
-    <section className="py-24 px-6">
-      <SectionTitle id="uso" tag="05" title="Padr\u00f5es de Uso" desc="Diretrizes para aplica\u00e7\u00e3o consistente da identidade visual." />
-      <div className="max-w-5xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {[
-            {
-              title: 'Grid e Espa\u00e7amento',
-              items: ['Grid base de 8px', 'Margens: 24px (tela), 15mm (impresso)', '\u00c1rea de prote\u00e7\u00e3o do logo proporcional'],
-            },
-            {
-              title: 'Fundos Permitidos',
-              items: ['Branco (#FFFFFF)', 'Cloud White (#F5F7FA)', 'Warm Cream (#FAF5E8)', 'Azul Sereno (logo negativa)', 'Fotografias com contraste'],
-            },
-            {
-              title: 'Bordas e Sombras',
-              items: ['Bordas: 1px, Azul Sereno 20%', 'Sombras sutis (0 2px 8px)', 'Evitar sombras pesadas', 'Tom elegante e leve'],
-            },
-          ].map(({ title, items }) => (
-            <div key={title} className="bg-white/5 rounded-2xl p-6 border border-white/10">
-              <h4 className="text-white font-semibold mb-4">{title}</h4>
-              <ul className="space-y-2">
-                {items.map((item) => (
-                  <li key={item} className="text-slate-400 text-sm flex items-start gap-2">
-                    <span className="text-[#D4A434] mt-0.5">&#8226;</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-            <h4 className="text-white font-semibold mb-4">Fotografia</h4>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Fotografias devem transmitir sofistica\u00e7\u00e3o, conforto e qualidade.
-              Preferir ilumina\u00e7\u00e3o natural, tons quentes e ambientes que remetam
-              a hotelaria e sa\u00fade de alto padr\u00e3o. Evitar filtros excessivos.
-            </p>
+      <Reveal delay={200}>
+        <div className="mb-16 pb-16 border-b border-azul/8">
+          <div className="text-[0.65rem] font-semibold tracking-[0.25em] uppercase text-dourado mb-6">Fonte Secundária — Corpo de Texto</div>
+          <div className="font-[family-name:var(--font-body)] text-[clamp(1.8rem,3vw,2.8rem)] font-light leading-[1.3] text-azul mb-6">
+            Montserrat
           </div>
-          <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
-            <h4 className="text-white font-semibold mb-4">Elementos Decorativos</h4>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              O s\u00edmbolo da videira pode ser usado como marca d\u2019\u00e1gua (5-10% opacidade),
-              elemento decorativo ou padr\u00e3o de fundo. Linhas finas douradas (#D4A434)
-              como separadores e molduras em materiais premium.
-            </p>
+          <div className="font-[family-name:var(--font-body)] text-[1.1rem] leading-8 text-cinza tracking-[0.05em]">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ<br/>
+            abcdefghijklmnopqrstuvwxyz<br/>
+            0123456789 &amp; ? ! @ #
           </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function Proibido() {
-  const rules = [
-    'Alterar propor\u00e7\u00f5es do logotipo',
-    'Rotacionar em qualquer \u00e2ngulo',
-    'Aplicar sombras ou chanfros ao logo',
-    'Alterar cores fora das varia\u00e7\u00f5es definidas',
-    'Usar sobre fundos sem contraste',
-    'Adicionar contornos ao logotipo',
-    'Reproduzir abaixo do tamanho m\u00ednimo',
-    'Separar elementos do logotipo',
-    'Usar tipografia diferente para o nome',
-    'Aplicar gradientes n\u00e3o autorizados',
-  ]
-  return (
-    <section className="py-24 px-6 bg-[#0d1220]">
-      <SectionTitle id="proibido" tag="06" title="Aplica\u00e7\u00f5es Proibidas" desc="Para proteger a integridade visual da marca." />
-      <div className="max-w-4xl mx-auto">
-        <div className="grid sm:grid-cols-2 gap-4">
-          {rules.map((rule, i) => (
-            <div key={i} className="flex items-center gap-4 bg-red-500/5 border border-red-500/20 rounded-xl px-5 py-4">
-              <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          <div className="flex flex-wrap gap-8 mt-8">
+            {[['Light 300', '300'], ['Regular 400', '400'], ['SemiBold 600', '600']].map(([name, w]) => (
+              <div key={name} className="flex flex-col gap-1">
+                <span className="text-[0.65rem] font-medium tracking-[0.15em] uppercase text-cinza">{name}</span>
+                <span className="font-[family-name:var(--font-body)] text-[1.8rem] text-azul" style={{ fontWeight: w }}>Fruto Da Vide</span>
               </div>
-              <span className="text-slate-300 text-sm">{rule}</span>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal delay={300}>
+        <div className="text-[0.65rem] font-semibold tracking-[0.25em] uppercase text-dourado mb-6">Hierarquia Tipográfica</div>
+        <div className="flex flex-col gap-6">
+          {[
+            { el: 'H1', size: '48 — 72px', sample: 'Título Principal', cls: 'font-[family-name:var(--font-display)] text-[2rem] font-normal text-azul' },
+            { el: 'H2', size: '32 — 48px', sample: 'Título de Seção', cls: 'font-[family-name:var(--font-display)] text-[1.5rem] font-normal text-azul' },
+            { el: 'H3', size: '24 — 32px', sample: 'Subtítulo', cls: 'font-[family-name:var(--font-display)] text-[1.2rem] font-medium text-azul' },
+            { el: 'Body', size: '16 — 18px', sample: 'Texto de corpo — legível e elegante', cls: 'font-[family-name:var(--font-body)] text-base font-light text-cinza' },
+            { el: 'Caption', size: '11 — 13px', sample: 'Rótulos e legendas', cls: 'font-[family-name:var(--font-body)] text-[0.75rem] font-medium tracking-[0.15em] uppercase text-cinza' },
+          ].map(({ el, size, sample, cls }) => (
+            <div key={el} className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8 pb-4 border-b border-azul/6">
+              <span className="shrink-0 w-20 text-[0.6rem] font-semibold tracking-[0.15em] uppercase text-cinza">{el}</span>
+              <span className={`flex-1 ${cls}`}>{sample}</span>
+              <span className="shrink-0 text-[0.7rem] text-dourado font-mono">{size}</span>
             </div>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }
 
+/* ── Aplicações ── */
 function Aplicacoes() {
   const apps = [
-    { title: 'Cart\u00e3o de Visita', desc: 'Logo Azul Sereno sobre Cloud White. Verso em Azul Sereno com texto branco. Detalhes em Dourado Quente.' },
-    { title: 'Papel Timbrado', desc: 'Logo reduzido no topo esquerdo. Dados no rodap\u00e9 em Montserrat Light. Separador dourado.' },
-    { title: 'Assinatura de E-mail', desc: 'S\u00edmbolo + nome em Azul Sereno. Linha dourada separando dados. Max 600px.' },
-    { title: 'Website', desc: 'Header branco com logo. CTAs em Dourado Quente. Rodap\u00e9 Azul Sereno.' },
-    { title: 'Redes Sociais', desc: 'Perfil: s\u00edmbolo sobre fundo branco. Posts com templates azul/branco.' },
-    { title: 'Etiquetas de Produto', desc: 'Fundo Warm Cream. Logo Azul Sereno. Borda dourada. Papel texturizado.' },
+    { title: 'Cartão de Visita', desc: 'Frente e verso, papel toque de algodão 350g, dourado hot stamping', cls: 'bg-gradient-to-br from-azul to-azul-dark' },
+    { title: 'Papelaria Corporativa', desc: 'Envelope, papel timbrado, pasta, bloco de notas', cls: 'bg-gradient-to-br from-cream to-[#e8e2d8]', dark: true },
+    { title: 'Uniformes', desc: 'Bordado no peito, tag na manga, elegância discreta', cls: 'bg-gradient-to-br from-preto to-[#2d2d2d]' },
+    { title: 'Embalagens', desc: 'Caixas, sacolas e tags com acabamento premium', cls: 'bg-gradient-to-br from-dourado to-[#b88a1e]' },
+    { title: 'Amenities de Hotel', desc: 'Toalhas, roupões, lençóis e kits com a identidade Fruto Da Vide bordada', cls: 'bg-gradient-to-br from-azul to-dourado', span: true },
   ]
   return (
-    <section className="py-24 px-6">
-      <SectionTitle tag="07" title="Exemplos de Aplica\u00e7\u00e3o" desc="Como a identidade visual se manifesta em diferentes materiais." />
-      <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {apps.map(({ title, desc }) => (
-          <div key={title} className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-[#D4A434]/30 transition-colors">
-            <h4 className="font-[family-name:var(--font-display)] text-white font-semibold mb-3">{title}</h4>
-            <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
-          </div>
+    <section id="aplicacoes" className="bg-preto text-white py-32 px-8 scroll-mt-20">
+      <div className="max-w-[1200px] mx-auto">
+        <Reveal>
+          <SectionLabel>06 — Aplicações</SectionLabel>
+          <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-4 max-w-[700px]">
+            A marca no mundo real
+          </h2>
+          <p className="text-[1.05rem] font-light leading-[1.9] text-white/60 max-w-[620px]">
+            Exemplos de como a identidade visual se materializa em pontos de contato físicos e digitais.
+          </p>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
+          {apps.map(({ title, desc, cls, dark, span }, i) => (
+            <Reveal key={title} delay={(i % 2) * 100}>
+              <div className={`aspect-[4/3] rounded-2xl overflow-hidden relative flex items-end p-8
+                transition-transform duration-500 hover:scale-[1.02] ${cls} ${span ? 'md:col-span-2 md:aspect-[2/1]' : ''}`}>
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] font-[family-name:var(--font-display)] text-[6rem] font-normal text-white select-none">FdV</div>
+                <div className="relative z-10">
+                  <h3 className={`font-[family-name:var(--font-display)] text-[1.3rem] font-medium mb-1 ${dark ? 'text-preto' : 'text-white'}`}>{title}</h3>
+                  <p className={`text-[0.75rem] font-light tracking-[0.05em] ${dark ? 'text-preto/60' : 'text-white/70'}`}>{desc}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── Proibidos ── */
+function Proibidos() {
+  const rules = [
+    { visual: 'scale-x-150', label: 'Distorcer ou esticar o logotipo' },
+    { visual: 'rotate-[25deg]', label: 'Rotacionar em ângulos arbitrários' },
+    { visual: '[text-shadow:4px_4px_0_rgba(0,0,0,0.3)]', label: 'Aplicar sombras ou efeitos 3D' },
+    { visual: 'text-red-500', label: 'Alterar as cores da paleta oficial' },
+    { visual: 'text-transparent [-webkit-text-stroke:1px_var(--color-azul)]', label: 'Usar apenas contorno sem preenchimento' },
+    { visual: 'opacity-20', label: 'Aplicar em fundo de baixo contraste' },
+  ]
+  return (
+    <section id="proibidos" className="py-32 px-8 max-w-[1200px] mx-auto scroll-mt-20">
+      <Reveal>
+        <SectionLabel>07 — Usos Proibidos</SectionLabel>
+        <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-4 max-w-[700px]">
+          O que nunca deve ser feito
+        </h2>
+        <p className="text-[1.05rem] font-light leading-[1.9] text-cinza max-w-[620px]">
+          Para preservar a integridade da marca, as seguintes alterações são estritamente proibidas em qualquer circunstância.
+        </p>
+      </Reveal>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+        {rules.map(({ visual, label }, i) => (
+          <Reveal key={i} delay={(i % 3) * 100}>
+            <div className="aspect-square border border-azul/8 rounded-xl flex flex-col items-center justify-center gap-4 p-8 relative transition-colors hover:border-red-400">
+              <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">&#10005;</div>
+              <div className={`w-20 h-20 flex items-center justify-center font-[family-name:var(--font-display)] text-base text-azul border border-azul/10 rounded-lg ${visual}`}>FdV</div>
+              <p className="text-[0.7rem] font-medium tracking-[0.05em] text-center text-cinza">{label}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>
   )
 }
 
+/* ── Footer ── */
 function Footer() {
   return (
-    <footer className="py-16 px-6 border-t border-white/10 text-center">
-      <img src={`${B}logos/row1c-simbolo-azul-sereno.png`} alt="FDV" className="h-12 mx-auto mb-4 opacity-40" />
-      <p className="text-slate-500 text-sm">
-        Fruto Da Vide &mdash; Manual de Identidade Visual v2.0
-      </p>
-      <p className="text-slate-600 text-xs mt-2">
-        Desenvolvido por Trik Digital &mdash; Mar\u00e7o 2026
-      </p>
+    <footer id="contato" className="bg-preto text-white py-24 px-8">
+      <div className="max-w-[1200px] mx-auto flex flex-wrap justify-between items-start gap-16">
+        <div>
+          <div className="font-[family-name:var(--font-display)] text-[1.8rem] font-normal mb-4">Fruto Da Vide</div>
+          <p className="text-[0.85rem] font-light text-white/40 leading-[1.7] max-w-xs">
+            Soluções têxteis premium para hotelaria e saúde. Mais de 44 anos de excelência, confiança e inovação.
+          </p>
+        </div>
+        <div>
+          <h5 className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-dourado mb-5">Manual</h5>
+          {['Sobre', 'Conceito', 'Logotipo', 'Paleta', 'Tipografia', 'Aplicações', 'Restrições'].map(s => (
+            <a key={s} href={`#${s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace('ções', 'coes').replace('ões', 'oes')}`}
+              className="block text-[0.85rem] font-light text-white/50 leading-8 hover:text-dourado transition-colors">
+              {s}
+            </a>
+          ))}
+        </div>
+        <div>
+          <h5 className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-dourado mb-5">Contato</h5>
+          <p className="text-[0.85rem] font-light text-white/50 leading-8">contato@frutodavide.com.br</p>
+          <p className="text-[0.85rem] font-light text-white/50 leading-8">frutodavide.com.br</p>
+        </div>
+      </div>
+      <div className="max-w-[1200px] mx-auto mt-16 pt-8 border-t border-white/6 flex flex-wrap justify-between text-[0.7rem] text-white/25 tracking-[0.05em]">
+        <span>&copy; 2026 Fruto Da Vide. Todos os direitos reservados.</span>
+        <span>Manual de Identidade Visual v3.0 — Desenvolvido por Trik Digital</span>
+      </div>
     </footer>
   )
 }
 
+/* ── CSS injection for the "visible" class ── */
+function StyleInjector() {
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = '.visible { opacity: 1 !important; transform: translateY(0) !important; }'
+    document.head.appendChild(style)
+    return () => style.remove()
+  }, [])
+  return null
+}
+
+/* ── App ── */
 export default function App() {
   return (
     <div className="min-h-screen">
+      <StyleInjector />
       <Nav />
       <Hero />
-      <Marca />
+      <Sobre />
+      <Divider />
+      <Conceito />
       <Logotipo />
-      <Cores />
+      <Divider />
+      <Paleta />
+      <Divider />
       <Tipografia />
-      <Uso />
-      <Proibido />
       <Aplicacoes />
+      <Proibidos />
       <Footer />
     </div>
   )
