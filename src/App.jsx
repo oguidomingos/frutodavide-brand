@@ -33,7 +33,7 @@ function Nav() {
   const links = [
     ['Sobre', '#sobre'], ['Conceito', '#conceito'], ['Logotipo', '#logotipo'],
     ['Paleta', '#paleta'], ['Tipografia', '#tipografia'],
-    ['Aplicações', '#aplicacoes'], ['Restrições', '#proibidos'],
+    ['Restrições', '#proibidos'],
   ]
   useEffect(() => {
     const nav = document.getElementById('main-nav')
@@ -480,46 +480,6 @@ function Tipografia() {
   )
 }
 
-/* ── Aplicações ── */
-function Aplicacoes() {
-  const apps = [
-    { title: 'Cartão de Visita', desc: 'Frente e verso, papel toque de algodão 350g, dourado hot stamping', cls: 'bg-gradient-to-br from-azul to-azul-dark' },
-    { title: 'Papelaria Corporativa', desc: 'Envelope, papel timbrado, pasta, bloco de notas', cls: 'bg-gradient-to-br from-cream to-[#e8e2d8]', dark: true },
-    { title: 'Uniformes', desc: 'Bordado no peito, tag na manga, elegância discreta', cls: 'bg-gradient-to-br from-preto to-[#2d2d2d]' },
-    { title: 'Embalagens', desc: 'Caixas, sacolas e tags com acabamento premium', cls: 'bg-gradient-to-br from-dourado to-[#b88a1e]' },
-    { title: 'Amenities de Hotel', desc: 'Toalhas, roupões, lençóis e kits com a identidade Fruto Da Vide bordada', cls: 'bg-gradient-to-br from-azul to-dourado', span: true },
-  ]
-  return (
-    <section id="aplicacoes" className="bg-preto text-white py-32 px-8 scroll-mt-20">
-      <div className="max-w-[1200px] mx-auto">
-        <Reveal>
-          <SectionLabel>06 — Aplicações</SectionLabel>
-          <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] font-normal leading-[1.15] mb-4 max-w-[700px]">
-            A marca no mundo real
-          </h2>
-          <p className="text-[1.05rem] font-light leading-[1.9] text-white/60 max-w-[620px]">
-            Exemplos de como a identidade visual se materializa em pontos de contato físicos e digitais.
-          </p>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-          {apps.map(({ title, desc, cls, dark, span }, i) => (
-            <Reveal key={title} delay={(i % 2) * 100}>
-              <div className={`aspect-[4/3] rounded-2xl overflow-hidden relative flex items-end p-8
-                transition-transform duration-500 hover:scale-[1.02] ${cls} ${span ? 'md:col-span-2 md:aspect-[2/1]' : ''}`}>
-                <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] font-[family-name:var(--font-display)] text-[6rem] font-normal text-white select-none">FdV</div>
-                <div className="relative z-10">
-                  <h3 className={`font-[family-name:var(--font-display)] text-[1.3rem] font-medium mb-1 ${dark ? 'text-preto' : 'text-white'}`}>{title}</h3>
-                  <p className={`text-[0.75rem] font-light tracking-[0.05em] ${dark ? 'text-preto/60' : 'text-white/70'}`}>{desc}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /* ── Proibidos ── */
 function Proibidos() {
   const rules = [
@@ -569,7 +529,7 @@ function Footer() {
         </div>
         <div>
           <h5 className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-dourado mb-5">Manual</h5>
-          {['Sobre', 'Conceito', 'Logotipo', 'Paleta', 'Tipografia', 'Aplicações', 'Restrições'].map(s => (
+          {['Sobre', 'Conceito', 'Logotipo', 'Paleta', 'Tipografia', 'Restrições'].map(s => (
             <a key={s} href={`#${s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace('ções', 'coes').replace('ões', 'oes')}`}
               className="block text-[0.85rem] font-light text-white/50 leading-8 hover:text-dourado transition-colors">
               {s}
@@ -616,7 +576,6 @@ export default function App() {
       <Paleta />
       <Divider />
       <Tipografia />
-      <Aplicacoes />
       <Proibidos />
       <Footer />
     </div>
